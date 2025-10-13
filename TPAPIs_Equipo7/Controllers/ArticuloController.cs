@@ -20,9 +20,11 @@ namespace TPAPIs_Equipo7.Controllers
         }
 
         // GET: api/Articulos/5
-        public string Get(int id)
+        public Articulo Get(int id)
         {
-            return "value";
+            ArticuloNegocio negocio = new ArticuloNegocio();
+            List<Articulo> articulos = negocio.listar();            
+            return articulos.Find(x => x.IdArticulo == id);
         }
 
         // POST: api/Articulos
