@@ -28,12 +28,25 @@ namespace TPAPIs_Equipo7.Controllers
         }
 
         // POST: api/Articulos
-        public void Post([FromBody]string value)
+        public void Post([FromBody]ArticuloDto value)
         {
+            ArticuloNegocio negocio = new ArticuloNegocio();
+            Articulo nuevo = new Articulo();
+
+            nuevo.Nombre = value.Nombre;
+            nuevo.Descripcion = value.Descripcion;
+            nuevo.ImagenUrl = value.ImagenUrl;
+            nuevo.Precio = value.Precio;
+            nuevo.CodigoArticulo = value.CodigoArticulo;
+            nuevo.Categoria = new Categoria { IdCategoria = value.IdCatergoria };
+            nuevo.Marca = new Marca { IdMarca = value.IdMarca };
+
+            // TODO: validar si existe el IdMarca y el IdCategoria antes de agregar
+            negocio.agregar(nuevo);
         }
 
         // PUT: api/Articulos/5
-        public void Put(int id, [FromBody]ArticuloDto articulo)
+        public void Put(int id, [FromBody]Articulo articulo)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
             Articulo modificado = new Articulo();
