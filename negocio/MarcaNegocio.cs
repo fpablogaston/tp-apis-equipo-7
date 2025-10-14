@@ -9,6 +9,32 @@ namespace negocio
 {
     public class MarcaNegocio
     {
+
+        public bool MarcaExistente(int idMarca)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setQuery("SELECT COUNT(1) as Cant FROM MARCAS WHERE Id = @Id");
+                datos.setearParametro("@Id", idMarca);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    return (int)datos.Lector["Cant"] > 0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
         public List<Marca> listar()
         {
             List<Marca> lista = new List<Marca>();

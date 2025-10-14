@@ -9,6 +9,33 @@ namespace negocio
 {
     public class CategoriaNegocio
     {
+
+        public bool CategoriaExistente(int idCategoria)
+        {
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setQuery("SELECT COUNT(1) as Cant FROM CATEGORIAS WHERE Id = @Id");
+                datos.setearParametro("@Id", idCategoria);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    return (int)datos.Lector["Cant"] > 0;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         public List<Categoria> listar()
         {
             List<Categoria> lista = new List<Categoria>();
