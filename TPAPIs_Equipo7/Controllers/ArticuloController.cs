@@ -31,19 +31,21 @@ namespace TPAPIs_Equipo7.Controllers
         public void Post([FromBody]ArticuloDto articulo)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
+            ImagenNegocio imagenNegocio = new ImagenNegocio();
+
             MarcaNegocio marcaNegocio = new MarcaNegocio();
             CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
+
           
-                if (!marcaNegocio.MarcaExistente(articulo.IdMarca))
-                {
+            if (!marcaNegocio.MarcaExistente(articulo.IdMarca))
+            {
                 throw new Exception("Marca inexistente.");
-                }
+            }
 
-                if (!categoriaNegocio.CategoriaExistente(articulo.IdCatergoria))
-                {
+            if (!categoriaNegocio.CategoriaExistente(articulo.IdCatergoria))
+            {
                 throw new Exception("Categoria inexistente.");
-                }
-
+            }
 
             Articulo nuevo = new Articulo();
 
@@ -55,13 +57,16 @@ namespace TPAPIs_Equipo7.Controllers
             nuevo.Categoria = new Categoria { IdCategoria = articulo.IdCatergoria };
             nuevo.Marca = new Marca { IdMarca = articulo.IdMarca };
 
-            negocio.agregar(nuevo);
+            int idArticulo = negocio.agregar(nuevo);
+            imagenNegocio.AgregarImagen(idArticulo, articulo.ImagenUrl);
         }
 
         // PUT: api/Articulos/5
         public void Put(int id, [FromBody]ArticuloDto articulo)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
+            ImagenNegocio imagenNegocio = new ImagenNegocio();
+
             MarcaNegocio marcaNegocio = new MarcaNegocio();
             CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
 
@@ -75,7 +80,6 @@ namespace TPAPIs_Equipo7.Controllers
                 throw new Exception("Categoria inexistente.");
             }
 
-
             Articulo modificado = new Articulo();
 
             modificado.Nombre = articulo.Nombre;
@@ -88,6 +92,8 @@ namespace TPAPIs_Equipo7.Controllers
             modificado.IdArticulo = id;
 
             negocio.modificar(modificado);
+            imagenNegocio.EliminarImagenesArticulo(id);
+            imagenNegocio.AgregarImagen(id, articulo.ImagenUrl);
         }
 
         // DELETE: api/Articulos/5

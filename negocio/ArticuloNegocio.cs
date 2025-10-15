@@ -58,7 +58,7 @@ namespace negocio
             }
         }
 
-        public void agregar(Articulo nuevo)
+        public int agregar(Articulo nuevo)
         {
             AccesoDatos datos = new AccesoDatos();
             try
@@ -71,6 +71,7 @@ namespace negocio
                 datos.setearParametro("@IdCategoria", nuevo.Categoria.IdCategoria);
                 datos.setearParametro("@Precio", nuevo.Precio);
                 datos.ejecutarAccion();
+                return datos.ejecutarScalar();
             }
             catch (Exception ex)
             {

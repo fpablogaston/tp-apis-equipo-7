@@ -88,6 +88,7 @@ namespace negocio
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error: {ex.ToString()}");
                 throw ex;
             }
             finally
