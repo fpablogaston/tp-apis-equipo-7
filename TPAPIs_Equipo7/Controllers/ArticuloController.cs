@@ -178,7 +178,40 @@ namespace TPAPIs_Equipo7.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al eliminar el articulo. Código de excepción: " + ex);
             }
-
         }
+
+        [HttpPost]
+        [Route("api/Articulos/{id}/imagenes")]
+        public HttpResponseMessage AgregarImagenes(int id, [FromBody] List<string> imagenes)
+        {
+            try
+            {
+                ArticuloNegocio negocio = new ArticuloNegocio();
+                Articulo articulo = negocio.listar().Find(x => x.IdArticulo == id);
+
+                if (articulo == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Artículo no encontrado.");
+                }
+
+                if (imagenes == null || !imagenes.Any())
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest, "Debe enviar al menos una imagen.");
+                }
+
+                ImagenNegocio imagenNegocio = new ImagenNegocio();
+                foreach (string imagenUrl in imagenes)
+                {
+                    imagenNegocio.AgregarImagen(id, imagenUrl);
+                }
+
+                return Request.CreateResponse(HttpStatusCode.OK, "Imágenes agregadas exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al agregar las imágenes. Código de excepción: " + ex);
+            }
+        }
+
     }
 }
