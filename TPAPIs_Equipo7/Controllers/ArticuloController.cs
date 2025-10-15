@@ -13,22 +13,54 @@ namespace TPAPIs_Equipo7.Controllers
     public class ArticuloController : ApiController
     {
         // GET: api/Articulos
-        public IEnumerable<Articulo> Get()
+        public HttpResponseMessage Get()
         {
+            try
+            {
             ArticuloNegocio negocio = new ArticuloNegocio();
-            return negocio.listar();
+            IEnumerable<Articulo> articulos = negocio.listar();
+
+                if(articulos == null || !articulos.Any())
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "No se encontraron articulos.");
+                }
+                
+                return Request.CreateResponse(HttpStatusCode.OK, articulos);
+            }
+
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al obtener los articulos. Código de excepción: " + ex);
+            }
         }
 
         // GET: api/Articulos/5
-        public Articulo Get(int id)
+        public HttpResponseMessage Get(int id)
         {
-            ArticuloNegocio negocio = new ArticuloNegocio();
-            List<Articulo> articulos = negocio.listar();            
-            return articulos.Find(x => x.IdArticulo == id);
+
+            try
+            { 
+                ArticuloNegocio negocio = new ArticuloNegocio();
+                List<Articulo> articulos = negocio.listar();  
+                
+                Articulo articulo = articulos.Find(x => x.IdArticulo == id);
+
+                if (articulo == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Articulo no encontrado.");
+                }
+    
+                return Request.CreateResponse(HttpStatusCode.OK, articulo);
+
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al obtener el articulo. Código de excepción: " + ex);
+            }
         }
 
         // POST: api/Articulos
-        public void Post([FromBody]ArticuloDto articulo)
+        public HttpResponseMessage Post([FromBody] ArticuloDto articulo)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
             ImagenNegocio imagenNegocio = new ImagenNegocio();
@@ -36,71 +68,117 @@ namespace TPAPIs_Equipo7.Controllers
             MarcaNegocio marcaNegocio = new MarcaNegocio();
             CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
 
-          
-            if (!marcaNegocio.MarcaExistente(articulo.IdMarca))
+
+            Marca marca = marcaNegocio.listar().Find(x => x.IdMarca == articulo.IdMarca);
+            Categoria categoria = categoriaNegocio.listar().Find(x => x.IdCategoria == articulo.IdCatergoria);
+
+
+
+
+            if (marca == null)
             {
-                throw new Exception("Marca inexistente.");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Marca inexistente.");
             }
 
-            if (!categoriaNegocio.CategoriaExistente(articulo.IdCatergoria))
+            if (categoria == null)
             {
-                throw new Exception("Categoria inexistente.");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Categoria inexistente.");
             }
 
-            Articulo nuevo = new Articulo();
+            try
+            {
+                Articulo nuevo = new Articulo();
 
-            nuevo.Nombre = articulo.Nombre;
-            nuevo.Descripcion = articulo.Descripcion;
-            nuevo.ImagenUrl = articulo.ImagenUrl;
-            nuevo.Precio = articulo.Precio;
-            nuevo.CodigoArticulo = articulo.CodigoArticulo;
-            nuevo.Categoria = new Categoria { IdCategoria = articulo.IdCatergoria };
-            nuevo.Marca = new Marca { IdMarca = articulo.IdMarca };
+                nuevo.Nombre = articulo.Nombre;
+                nuevo.Descripcion = articulo.Descripcion;
+                nuevo.ImagenUrl = articulo.ImagenUrl;
+                nuevo.Precio = articulo.Precio;
+                nuevo.CodigoArticulo = articulo.CodigoArticulo;
+                nuevo.Categoria = new Categoria { IdCategoria = articulo.IdCatergoria };
+                nuevo.Marca = new Marca { IdMarca = articulo.IdMarca };
 
-            int idArticulo = negocio.agregar(nuevo);
-            imagenNegocio.AgregarImagen(idArticulo, articulo.ImagenUrl);
+                int idArticulo = negocio.agregar(nuevo);
+                imagenNegocio.AgregarImagen(idArticulo, articulo.ImagenUrl);
+
+                return Request.CreateResponse(HttpStatusCode.Created, "Articulo agregado exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al agregar el articulo. Código de excepción: " + ex); 
+            }
         }
 
         // PUT: api/Articulos/5
-        public void Put(int id, [FromBody]ArticuloDto articulo)
+        public HttpResponseMessage Put(int id, [FromBody]ArticuloDto articulo)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
             ImagenNegocio imagenNegocio = new ImagenNegocio();
-
             MarcaNegocio marcaNegocio = new MarcaNegocio();
             CategoriaNegocio categoriaNegocio = new CategoriaNegocio();
 
-            if (!marcaNegocio.MarcaExistente(articulo.IdMarca))
+            Marca marca = marcaNegocio.listar().Find(x => x.IdMarca == articulo.IdMarca);
+            Categoria categoria = categoriaNegocio.listar().Find(x => x.IdCategoria == articulo.IdCatergoria);
+
+            if (marca == null)
             {
-                throw new Exception("Marca inexistente.");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Marca inexistente.");
             }
 
-            if (!categoriaNegocio.CategoriaExistente(articulo.IdCatergoria))
+            if (categoria == null)
             {
-                throw new Exception("Categoria inexistente.");
+                return Request.CreateResponse(HttpStatusCode.BadRequest, "Categoria inexistente.");
             }
 
-            Articulo modificado = new Articulo();
 
-            modificado.Nombre = articulo.Nombre;
-            modificado.Descripcion = articulo.Descripcion;
-            modificado.ImagenUrl = articulo.ImagenUrl;
-            modificado.Precio = articulo.Precio;
-            modificado.CodigoArticulo = articulo.CodigoArticulo;
-            modificado.Categoria = new Categoria { IdCategoria = articulo.IdCatergoria };
-            modificado.Marca = new Marca { IdMarca = articulo.IdMarca };
-            modificado.IdArticulo = id;
+            try
+            {
+                Articulo modificado = new Articulo();
 
-            negocio.modificar(modificado);
-            imagenNegocio.EliminarImagenesArticulo(id);
-            imagenNegocio.AgregarImagen(id, articulo.ImagenUrl);
+                modificado.Nombre = articulo.Nombre;
+                modificado.Descripcion = articulo.Descripcion;
+                modificado.ImagenUrl = articulo.ImagenUrl;
+                modificado.Precio = articulo.Precio;
+                modificado.CodigoArticulo = articulo.CodigoArticulo;
+                modificado.Categoria = new Categoria { IdCategoria = articulo.IdCatergoria };
+                modificado.Marca = new Marca { IdMarca = articulo.IdMarca };
+                modificado.IdArticulo = id;
+
+                negocio.modificar(modificado);
+                imagenNegocio.EliminarImagenesArticulo(id);
+                imagenNegocio.AgregarImagen(id, articulo.ImagenUrl);
+
+                return Request.CreateResponse(HttpStatusCode.OK, "Articulo modificado exitosamente.");
+            }
+
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al modificar el articulo. Código de excepción: " + ex);
+            }
+
         }
 
         // DELETE: api/Articulos/5
-        public void Delete(int id)
+        public HttpResponseMessage Delete(int id)
         {
             ArticuloNegocio negocio = new ArticuloNegocio();
-            negocio.eliminarFisica(id);
+            
+            try
+            {
+                Articulo articulo = negocio.listar().Find(x => x.IdArticulo == id);
+                if (articulo == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Articulo no encontrado.");
+                }
+
+                negocio.eliminarFisica(id);
+                return Request.CreateResponse(HttpStatusCode.OK, "Articulo eliminado exitosamente.");
+            }
+
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, "Error al eliminar el articulo. Código de excepción: " + ex);
+            }
+
         }
     }
 }
