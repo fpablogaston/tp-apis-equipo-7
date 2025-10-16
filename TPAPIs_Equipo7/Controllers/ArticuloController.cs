@@ -180,8 +180,32 @@ namespace TPAPIs_Equipo7.Controllers
             }
         }
 
+        List<string> EliminarImagenesRepetidas(List<string> imagenesCargadas, List<Imagen> imagenes)
+        {
+            List<string> imagenesNuevas = new List<string>();
+            List<string> imagenesExistentes = new List<string>();
+            foreach (Imagen imagen in imagenes)
+            {
+                imagenesExistentes.Add(imagen.UrlImagen);
+            }
+
+            foreach (string img in imagenesCargadas)
+            {
+                if (imagenesExistentes.Contains(img))
+                {
+                    continue;
+                }
+                else
+                {
+                    imagenesNuevas.Add(img);
+                }
+            }
+
+            return imagenesNuevas;
+        }
+
         [HttpPost]
-        [Route("api/Articulos/{id}/imagenes")]
+        [Route("api/Articulo/{id}/imagenes")]
         public HttpResponseMessage AgregarImagenes(int id, [FromBody] List<string> imagenes)
         {
             try
@@ -199,7 +223,10 @@ namespace TPAPIs_Equipo7.Controllers
                     return Request.CreateResponse(HttpStatusCode.BadRequest, "Debe enviar al menos una imagen.");
                 }
 
+
                 ImagenNegocio imagenNegocio = new ImagenNegocio();
+                imagenes = EliminarImagenesRepetidas(imagenes, imagenNegocio.GetImagenes(id));
+
                 foreach (string imagenUrl in imagenes)
                 {
                     imagenNegocio.AgregarImagen(id, imagenUrl);
